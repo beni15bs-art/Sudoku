@@ -63,7 +63,7 @@ body{display:flex;justify-content:center;padding:0 0 2rem;-webkit-user-select:no
 
 /* Board */
 .bwrap{display:flex;justify-content:center;margin-bottom:.9rem;position:relative}
-.board{display:grid;grid-template-columns:repeat(9,1fr);border:2.5px solid var(--text);border-radius:5px;overflow:hidden;width:100%;max-width:504px;cursor:pointer}
+.board{display:grid;grid-template-columns:repeat(9,1fr);border:2.5px solid var(--text);border-radius:5px;overflow:hidden;width:100%;max-width:504px;cursor:pointer;touch-action:none}
 .cell{aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-size:clamp(15px,3.8vw,22px);border-right:0.5px solid var(--border);border-bottom:0.5px solid var(--border);transition:background .07s;color:var(--text);position:relative}
 .cell[data-c="2"],.cell[data-c="5"]{border-right:2px solid var(--text)}
 .cell[data-r="2"],.cell[data-r="5"]{border-bottom:2px solid var(--text)}
