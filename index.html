@@ -629,11 +629,23 @@ document.getElementById('board').addEventListener('touchmove',e=>{
     selSet=new Set([dragStart]);
     sel=dragStart;
   }
-  if(!selSet.has(idx)){selSet.add(idx);render();}
+  if(!selSet.has(idx)){
+    selSet.add(idx);
+    // Lightweight highlight update — don't rebuild DOM during touch
+    const cells=document.getElementById('board').children;
+    for(let i=0;i<81;i++){
+      if(selSet.has(i))cells[i].classList.add('msel');
+      else cells[i].classList.remove('msel','sel');
+    }
+    const mh=document.getElementById('mselHint');
+    mh.textContent=`${selSet.size} cells selected — type a number to fill all`;
+    mh.style.color='var(--text2)';
+  }
 },{passive:false});
 
 document.getElementById('board').addEventListener('touchend',e=>{
   isDragging=false;dragActivated=false;
+  render(); // Full render once drag is complete
 },{passive:false});
 
 function renderDots(){
