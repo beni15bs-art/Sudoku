@@ -620,12 +620,11 @@ document.getElementById('board').addEventListener('touchstart',e=>{
 },{passive:false});
 
 document.getElementById('board').addEventListener('touchmove',e=>{
+  e.preventDefault();
   if(!isDragging||paused)return;
   const t=e.touches[0];
   const idx=cellAtPos(t.clientX,t.clientY);if(idx<0)return;
-  e.preventDefault();
   if(!dragActivated){
-    if(idx===dragStart)return;
     dragActivated=true;
     selSet=new Set([dragStart]);
     sel=dragStart;
