@@ -17,7 +17,7 @@
   :root{--bg:#1c1c1e;--bg2:#2a2a2c;--bg3:#363638;--text:#f0f0f0;--text2:#a0a0a0;--text3:#606060;
   --border:rgba(255,255,255,0.1);--border2:rgba(255,255,255,0.2);--border3:rgba(255,255,255,0.35);}
 }
-html,body{height:100%;background:var(--bg);font-family:var(--font);color:var(--text);overflow-x:hidden;}
+html,body{height:100%;background:var(--bg);font-family:var(--font);color:var(--text);overflow-x:hidden;touch-action:pan-y;}
 body{display:flex;justify-content:center;padding:0 0 2rem;-webkit-user-select:none;user-select:none;}
 .app{width:100%;max-width:520px;padding:1.5rem 1.25rem 2rem;position:relative;}
 
@@ -598,10 +598,10 @@ function cellAtPos(clientX,clientY){
 }
 
 document.getElementById('board').addEventListener('touchstart',e=>{
+  e.preventDefault();
   if(paused||won)return;
   const t=e.touches[0];
   const idx=cellAtPos(t.clientX,t.clientY);if(idx<0)return;
-  e.preventDefault();
   isDragging=true;dragActivated=false;dragStart=idx;
   ctrlMode=false;
   if(numMode>0){
