@@ -524,14 +524,7 @@ function inp(n){
 }
 
 // ── Mouse / drag ──
-function cellAt(e){
-  const bd=document.getElementById('board');
-  const rect=bd.getBoundingClientRect();
-  const cw=rect.width/9,ch=rect.height/9;
-  const x=e.clientX-rect.left,y=e.clientY-rect.top;
-  if(x<0||y<0||x>rect.width||y>rect.height)return -1;
-  return (0|Math.min(8,y/ch))*9+(0|Math.min(8,x/cw));
-}
+function cellAt(e){return cellAtPos(e.clientX,e.clientY);}
 
 document.getElementById('board').addEventListener('mousedown',e=>{
   if(paused||won)return;
@@ -583,11 +576,66 @@ document.addEventListener('mousemove',e=>{
 
 document.addEventListener('mouseup',()=>{isDragging=false;dragActivated=false;});
 
+// Stop clicks on board/npad from bubbling to the document clear-handler
+// (rebuilt innerHTML means detached elements lose their closest() ancestors)
+document.getElementById('board').addEventListener('click',e=>e.stopPropagation());
+document.getElementById('npad').addEventListener('click',e=>e.stopPropagation());
+
 document.addEventListener('click',e=>{
   if(!e.target.closest('#board')&&!e.target.closest('#npad')&&!e.target.closest('#sPanel')){
     if(sel>=0||selSet.size>0||numMode>0){sel=-1;selSet=new Set();numMode=0;render();}
   }
 });
+
+// ── Touch support (iPhone drag) ──
+function cellAtPos(clientX,clientY){
+  const bd=document.getElementById('board');
+  const rect=bd.getBoundingClientRect();
+  const cw=rect.width/9,ch=rect.height/9;
+  const x=clientX-rect.left,y=clientY-rect.top;
+  if(x<0||y<0||x>rect.width||y>rect.height)return -1;
+  return (0|Math.min(8,y/ch))*9+(0|Math.min(8,x/cw));
+}
+
+document.getElementById('board').addEventListener('touchstart',e=>{
+  if(paused||won)return;
+  const t=e.touches[0];
+  const idx=cellAtPos(t.clientX,t.clientY);if(idx<0)return;
+  e.preventDefault();
+  isDragging=true;dragActivated=false;dragStart=idx;
+  ctrlMode=false;
+  if(numMode>0){
+    if(!isLocked(idx)){
+      hist.push({type:'single',i:idx,v:puzzle[idx],ns:new Set(notes[idx]),wasHint:false});
+      applyOne(idx,numMode);
+      render();
+      if(!won&&chkWin())onWin();
+    }
+    return;
+  }
+  selSet=new Set();
+  sel=(sel===idx)?-1:idx;
+  numMode=0;
+  render();
+},{passive:false});
+
+document.getElementById('board').addEventListener('touchmove',e=>{
+  if(!isDragging||paused)return;
+  const t=e.touches[0];
+  const idx=cellAtPos(t.clientX,t.clientY);if(idx<0)return;
+  e.preventDefault();
+  if(!dragActivated){
+    if(idx===dragStart)return;
+    dragActivated=true;
+    selSet=new Set([dragStart]);
+    sel=dragStart;
+  }
+  if(!selSet.has(idx)){selSet.add(idx);render();}
+},{passive:false});
+
+document.getElementById('board').addEventListener('touchend',e=>{
+  isDragging=false;dragActivated=false;
+},{passive:false});
 
 function renderDots(){
   const d=document.getElementById('dots');d.innerHTML='';
